@@ -19,13 +19,16 @@ const serviceManagerScheme = {
   start: Joi.function().required(),
   stop: Joi.function().required(),
   restart: Joi.function().required(),
-  isRunningAsService: Joi.function().required()
+  isRunningAsService: Joi.function().required(),
+  detect: Joi.function() // "private" api
 }
 
 const DefaultUpdater = require('./updater')
 const ScriptTypeByPlatform = {linux: 'sh', darwin: 'sh', win32: 'bat'}
 const ScriptTypes = ['sh', 'bat', 'ps'] // TODO: add
 const ServiceManagers = {} // TODO: add
+
+const prom = (f) => new Promise((resolve, reject) => f((err, res) => err ? reject(err) : resolve(res)))
 
 const fetch = require('node-fetch')
 const fs = require('fs')
@@ -148,10 +151,13 @@ const Pneumon = (options) => {
       })
     },
     prepare: async (tmp, newVer) => { // prepare update (move bin, rewrite wrapper)
-
+      // we're using copyFile since rename can fail sometimes accross filesystems?!
+      await prom(cb => fs.copyFile(tmp, binaryPath + '.new', fs.constants.COPYFILE_FICLONE, cb))
+      await prom(cb => fs.unlink(tmp))
+      await installRoutine()
     },
     finalize: async () => { // finalize (restart service)
-      serviceManager.restart()
+      await serviceManager.restart()
     },
     all: async () => {
       const newVer = await updateRoutine.check()
@@ -164,26 +170,29 @@ const Pneumon = (options) => {
     }
   }
 
+  const installRoutine = async () => {
+    if (wrapper) {
+      await prom(cb => fs.writeFile(wrapperScript.path, wrapperScript.manager.generator(wrapper, binaryPath), cb))
+    }
+    await serviceManager.install(name)
+  }
+
   return {
     isInstalled: () => serviceManager.isInstalled(name),
-    install: () => {
+    install: installRoutine,
+    uninstall: async () => {
       if (wrapper) {
-        fs.writeFileSync(wrapperScript.path, wrapperScript.manager.generate(wrapper))
+        await prom(cb => fs.unlink(wrapperScript.path, cb))
       }
-      serviceManager.install(name)
-    },
-    uninstall: () => {
-      if (wrapper) {
-        fs.unlinkSync(wrapperScript.path)
-      }
-      serviceManager.uninstall(name)
+      await serviceManager.uninstall(name)
     },
     service: serviceManager,
     isRunningAsService: () => serviceManager.isRunningAsService(),
     checkForUpdates: async () => {
       return Boolean(await updateRoutine.checkForNewVersion())
     },
-    update: () => updateRoutine.all()
+    update: () => updateRoutine.all(),
+    interval: setInterval(() => updateRoutine.all(), checkInterval)
   }
 }
 
