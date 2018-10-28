@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "bin": "src/bin.js",
+  "bin": {
+    "pneumon": "src/bin.js"
+  },
   "keywords": [
     "update",
     "service",
@@ -16,8 +18,18 @@
   "author": "Maciej Krüger <mkg20001@gmail.com>",
   "license": "MPL-2.0",
   "dependencies": {
+    "joi": "^14.0.1",
     "multihashing": "^0.3.2",
     "node-fetch": "^2.2.0",
     "shell-escape": "^0.2.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mkg20001/pneumon.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mkg20001/pneumon/issues"
+  },
+  "homepage": "https://github.com/mkg20001/pneumon#readme"
 }
