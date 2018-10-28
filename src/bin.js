@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 'use strict'
 
 /* eslint-disable no-console */
@@ -16,7 +18,8 @@ const fs = require('fs')
 const path = require('path')
 
 if (process.argv.length <= 2) {
-  console.error(`Usage: ${process.argv[0]} [--hash [multihash-algorithm-name]] --file <path> --out <path> --version <version> [--url <download-url>]`)
+  console.error(`Usage: ${process.argv.pop()} [--hash [multihash-algorithm-name]] --file <path> --out <path> --version <version> [--url <download-url>]`)
+  process.exit(1)
 }
 
 let lastOption

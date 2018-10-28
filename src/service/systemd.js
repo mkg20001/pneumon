@@ -15,7 +15,8 @@ Restart=always
 SyslogIdentifier=${name}
 #User={{user}}
 #Group={{group}}
-#Environment={{env}}
+Environment=NODE_ENV=production
+Environment=PNEUMON_INNER=1
 
 [Install]
 WantedBy=multi-user.target
@@ -25,11 +26,9 @@ module.exports = ({name, cmd, args}) => {
   const svcPath = '/etc/systemd/system/' + name + '.service'
 
   return {
-    // http://unix.stackexchange.com/questions/18209/detect-init-system-using-the-shell
-    detect: () => process.platform === 'linux' && (fs.existsSync('/usr/bin/systemctl') || fs.existsSync('/bin/systemctl')),
-    isInstalled: async () => fs.existsFileSync(svcPath),
+    isInstalled: async () => fs.existsSync(svcPath),
     install: async () => {
-      await prom(cb => fs.writeFile(svcPath, tpl({name, cmd, args}, cb)))
+      await prom(cb => fs.writeFile(svcPath, tpl({name, cmd, args}), cb))
       await exec('systemctl', ['daemon-reload'])
       await exec('systemctl', ['enable', name])
     },
@@ -45,6 +44,10 @@ module.exports = ({name, cmd, args}) => {
     },
     restart: async () => {
       await exec('systemctl', ['restart', name])
-    }
+    },
+    isRunningAsService: async () => Boolean(process.env.PNEUMON_INNER)
   }
 }
+
+// http://unix.stackexchange.com/questions/18209/detect-init-system-using-the-shell
+module.exports.detect = () => process.platform === 'linux' && (fs.existsSync('/usr/bin/systemctl') || fs.existsSync('/bin/systemctl'))

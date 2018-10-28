@@ -81,7 +81,7 @@ module.exports = (getService, fakeWrapper, platform) => class ServiceManager {
     return true // TODO: add
   }
 
-  detect () {
+  static detect () {
     return process.platform === this.platform
   }
 }

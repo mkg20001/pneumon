@@ -8,11 +8,13 @@ module.exports = (cmd, args) => new Promise((resolve, reject) => {
   p.stdout = p.stdout.pipe(bl())
   p.stderr = p.stderr.pipe(bl())
 
-  p.on('exit', (code, sig) => {
+  p.once('exit', (code, sig) => {
     if (code || sig) {
       return reject(new Error('Code/Sig ' + (code || sig)))
     }
 
     return resolve(p)
   })
+
+  p.once('error', reject)
 })

@@ -64,26 +64,31 @@ const Pneumon = (options) => {
     binaryPath = executorPath ? process.argv[1] : process.argv[0]
   }
 
-  if (typeof wrapperScript === 'string') {
-    wrapperScript = {path: wrapperScript}
-  }
+  if (wrapperScript) {
+    if (typeof wrapperScript === 'string') {
+      wrapperScript = {path: wrapperScript}
+    }
 
-  if (typeof wrapperScript.type === 'undefined') {
-    let ext = wrapperScript.path.split('.').pop()
-    wrapperScript.type = ScriptTypes.indexOf(ext) !== -1 ? ext : ScriptTypeByPlatform[process.platform]
-  }
+    if (typeof wrapperScript.type === 'undefined') {
+      let ext = wrapperScript.path.split('.').pop()
+      wrapperScript.type = ScriptTypes.indexOf(ext) !== -1 ? ext : ScriptTypeByPlatform[process.platform]
+    }
 
-  wrapperScript.manager = ScriptTypes[wrapperScript.type]
+    wrapperScript.manager = ScriptTypes[wrapperScript.type]
+  }
 
   log('wrapper script config: %o', wrapperScript || 'not enabled')
   log('runtime config: executor=%o, binary=%o', executorPath, binaryPath)
 
   if (typeof serviceManager === 'string') {
+    log('using service manager %s', serviceManager)
     serviceManager = ServiceManagers[serviceManager]
   }
 
   if (typeof serviceManager === 'undefined') {
-    serviceManager = ServiceManagers[Object.keys(ServiceManagers).filter(s => s.detect())[0]]
+    const svMgr = Object.keys(ServiceManagers).map(s => [s, ServiceManagers[s]]).filter(s => s[1].detect())[0][0]
+    log('using service manager %s (auto)', svMgr)
+    serviceManager = ServiceManagers[svMgr]
   }
 
   let service
@@ -111,7 +116,11 @@ const Pneumon = (options) => {
 
   service.name = name
 
-  serviceManager = new serviceManager(service)
+  try {
+    serviceManager = new serviceManager(service)
+  } catch (e) {
+    serviceManager = serviceManager(service)
+  }
 
   Joi.validate(serviceManager, serviceManagerScheme)
 
@@ -228,7 +237,7 @@ const Pneumon = (options) => {
     service: serviceManager,
     isRunningAsService: () => serviceManager.isRunningAsService(),
     checkForUpdates: async () => {
-      return Boolean(await updateRoutine.checkForNewVersion())
+      return Boolean(await updateRoutine.check())
     },
     update: () => updateRoutine.all(),
     interval: setInterval(() => updateRoutine.all(), checkInterval)
