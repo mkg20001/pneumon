@@ -15,7 +15,7 @@ Pneumon is a module that allows automatic updating and managment of nodeJS app d
      - `String version`: Version String (Can be anything, pnemoun does not differentiate between up- and downgrades)
      - `Buffer checksum`(optional): Multihash encoded checksum (note: only a subset supported). If this is null, checksum checks will be skipped (UNRECOMMENDED)
      - `String url`: Download URL for file
-  - `String`: URL to a JSON file in the above format, except checksum must be base58 encoded
+  - `String`: URL to a JSON file in the above format, except checksum must be encoded as hex
 - `Integer checkInterval`: Check interval for updates. Default 1000 * 60 * 60 (1h)
 - `String executorPath`: Binary to execute the executable with. This usually is the nodeJS runtime. Set this to `false` to make the binary get directly executed, as it is required for pkg. (Note: If `process.pkg` is set then this is automatically getting set to `false`)
 - `String binaryPath`: The path to the binary. This is `process.argv[1]` by default, unless `executorPath` is set to `false` then it's `process.argv[0]`
@@ -77,17 +77,13 @@ main()
 
 # Helpful notes
 
-You need to bundle your code into a single file
+To use pneumon, you need to bundle your code into a single file which you can do using [pkg](https://github.com/zeit/pkg)
 
-You should really use [pkg](https://github.com/zeit/pkg) for bundling
-
-This makes managing nodeJS versions easier, too
-
-You could also use docker, but sometimes that's simply not an option or just too much
+You could also use docker, but sometimes that's simply not an option or just too much, that's why I created this lib
 
 # Wrapper Script
 
-The wrapper script is a simple script that checks for a new binary, replaces the current one with the new one and runs the new binary.
+The wrapper script is a simple script that checks for a new binary, replaces the current one with the new one and runs the new binary
 
 # Todo
 

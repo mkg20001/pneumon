@@ -13,5 +13,9 @@
     "managment"
   ],
   "author": "Maciej Krüger <mkg20001@gmail.com>",
-  "license": "MPL-2.0"
+  "license": "MPL-2.0",
+  "dependencies": {
+    "multihashing": "^0.3.2",
+    "node-fetch": "^2.2.0"
+  }
 }

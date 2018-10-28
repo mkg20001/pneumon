@@ -1,16 +1,39 @@
 'use strict'
 
-/* const Joi = require('joi')
+const Joi = require('joi')
 
-const pattern = {
+const configScheme = { // TODO: add
   version: Joi.string().required()
-} */
+}
+
+const updateScheme = Joi.object().required().keys({
+  version: Joi.string().required(),
+  checksum: Joi.buffer(),
+  url: Joi.string().required()
+})
+
+const serviceManagerScheme = {
+  isInstalled: Joi.function().required(),
+  install: Joi.function().required(),
+  uninstall: Joi.function().required(),
+  start: Joi.function().required(),
+  stop: Joi.function().required(),
+  restart: Joi.function().required(),
+  isRunningAsService: Joi.function().required()
+}
 
 const DefaultUpdater = require('./updater')
 const ScriptTypeByPlatform = {linux: 'sh', darwin: 'sh', win32: 'bat'}
 const ScriptTypes = ['sh', 'bat', 'ps'] // TODO: add
 const ServiceManagers = {} // TODO: add
+
+const fetch = require('node-fetch')
 const fs = require('fs')
+const path = require('path')
+const os = require('os')
+
+const multihashing = require('multihashing')
+const multihash = require('multihashes')
 
 const Pneumon = (options) => {
   // TODO: validate
@@ -51,7 +74,7 @@ const Pneumon = (options) => {
     serviceManager = ServiceManagers[Object.keys(ServiceManagers).filter(s => s.detect())[0]]
   }
 
-  // TODO: validate service manager
+  Joi.validate(serviceManager, serviceManagerScheme)
 
   let service
   let wrapper
@@ -79,12 +102,50 @@ const Pneumon = (options) => {
   const updateRoutine = {
     check: async () => { // check for new version
       const newVer = await updater()
+      Joi.validate(newVer, updateScheme)
       if (newVer.version !== version) {
         return newVer
       }
     },
     download: async (newVer) => { // download new version to tmp, do checksum
+      const tmp = path.join(os.tmpdir(), Math.random())
+      const res = await fetch(newVer.url)
 
+      let hash
+      let hashFnc
+      if (newVer.checksum) {
+        hash = newVer.checksum
+        hashFnc = multihashing.createHash(multihash.decode(hash).name)
+      }
+
+      return new Promise((resolve, reject) => {
+        const dest = fs.createWriteStream(tmp)
+
+        if (hash) {
+          res.body.on('data', (data) => {
+            hashFnc.update(data)
+          })
+        }
+        res.body.on('error', (err) => {
+          reject(err)
+        })
+
+        dest.on('finish', () => {
+          if (hash) {
+            const hashDl = hashFnc.digest()
+            if (!multihashing.verify(hash, hashDl)) {
+              return reject(new Error('Hash should be ' + hash.toString('hex') + ' but got ' + hashDl.toString('hex')))
+            }
+          }
+
+          resolve(tmp)
+        })
+        dest.on('error', (err) => {
+          reject(err)
+        })
+
+        res.body.pipe(dest)
+      })
     },
     prepare: async (tmp, newVer) => { // prepare update (move bin, rewrite wrapper)
 
@@ -125,3 +186,5 @@ const Pneumon = (options) => {
     update: () => updateRoutine.all()
   }
 }
+
+module.exports = Pneumon
