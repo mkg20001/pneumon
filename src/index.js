@@ -125,17 +125,20 @@ const Pneumon = (options) => {
   Joi.validate(serviceManager, serviceManagerScheme)
 
   const updateRoutine = {
-    check: async () => { // check for new version
+    check: async (force) => { // check for new version
       log('checking for updates')
       const newVer = await updater()
       Joi.validate(newVer, updateScheme)
       if (newVer.version !== version) {
         log('found (%o => %o)', version, newVer.version)
         return newVer
+      } else if (force) {
+        log('forcing reinstall of %o', version)
+        return newVer
       }
     },
     download: async (newVer) => { // download new version to tmp, do checksum
-      const tmp = path.join(os.tmpdir(), Math.random())
+      const tmp = path.join(os.tmpdir(), String(Math.random()))
 
       let dlUrl
       if (newVer.url.match(/^[./]/)) {
@@ -205,9 +208,9 @@ const Pneumon = (options) => {
       log('finalize update')
       await serviceManager.restart()
     },
-    all: async () => {
+    all: async (force) => {
       log('update routine started')
-      const newVer = await updateRoutine.check()
+      const newVer = await updateRoutine.check(force)
       if (!newVer) {
         return
       }
@@ -239,7 +242,7 @@ const Pneumon = (options) => {
     checkForUpdates: async () => {
       return Boolean(await updateRoutine.check())
     },
-    update: () => updateRoutine.all(),
+    update: (...a) => updateRoutine.all(...a),
     interval: setInterval(() => updateRoutine.all(), checkInterval)
   }
 }
