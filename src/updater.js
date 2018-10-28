@@ -15,6 +15,7 @@ module.exports = (url) => async () => {
   if (res.checksum) {
     res.checksum = Buffer.from(res.checksum, 'hex')
   }
+  res._source = url
 
   return res
 }

@@ -9,7 +9,8 @@ const configScheme = { // TODO: add
 const updateScheme = Joi.object().required().keys({
   version: Joi.string().required(),
   checksum: Joi.buffer(),
-  url: Joi.string().required()
+  url: Joi.string().required(),
+  _source: Joi.string()
 })
 
 const serviceManagerScheme = {
@@ -112,7 +113,20 @@ const Pneumon = (options) => {
     },
     download: async (newVer) => { // download new version to tmp, do checksum
       const tmp = path.join(os.tmpdir(), Math.random())
-      const res = await fetch(newVer.url)
+
+      let dlUrl
+      if (newVer.url.match(/^[./]/)) {
+        if (!newVer._source) {
+          throw new Error('Manifest provided relative URL but no _source parameter!')
+        }
+        const parsed = new URL(newVer._source)
+        parsed.pathname = path.resolve(parsed.pathname, newVer.url)
+        dlUrl = parsed.toString()
+      } else {
+        dlUrl = newVer.url
+      }
+
+      const res = await fetch(dlUrl)
 
       let hash
       let hashFnc

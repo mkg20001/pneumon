@@ -4,7 +4,7 @@
 
 const opt = {}
 const Joi = require('joi')
-const scheme = Joi.object().keys({
+const scheme = Joi.object().keys({ // TODO: investigate why this doesn't validate
   version: Joi.string().required(),
   out: Joi.string().required(),
   hash: Joi.string(),
@@ -29,6 +29,7 @@ process.argv.slice(2).concat(['-']).forEach(v => {
     lastOption = v.replace(/-/g, '')
   } else {
     opt[lastOption] = v
+    lastOption = null
   }
 })
 
@@ -45,10 +46,10 @@ if (typeof hash === 'boolean') {
 let url = opt.url || opt.u
 
 if (!url) {
-  url = './' + path.basename(file)
+  url = './' + path.basename(file || '')
 }
 
-Joi.validate({hash, out, version, file}, scheme)
+Joi.validate({hash, out, version, file, url}, scheme)
 
 let data = {version, url}
 
@@ -56,6 +57,6 @@ if (hash) {
   data.checksum = multihashing(fs.readFileSync(file), hash).toString('hex')
 }
 
-fs.writeFileSync(out, JSON.stringify(data, null, 2))
+fs.writeFileSync(out, JSON.stringify(data, null, 2) + '\n')
 
 console.log('Written update %s (version %s) meta to %s!', file, version, out)
