@@ -198,9 +198,11 @@ const Pneumon = (options) => {
       log('copying binary')
       if (wrapper) {
         await prom(cb => fs.copyFile(tmp, binaryPath + '.new', fs.constants.COPYFILE_FICLONE, cb)) // wrapper will move $BIN.new to $BIN on launch because some os don't allow writing to the exec while it's running
+        await prom(cb => fs.chmod(binaryPath + '.new', 755))
       } else {
         await prom(cb => fs.unlink(binaryPath, cb)) // remove first so we can "overwrite". we can't change the running executable on linux
         await prom(cb => fs.copyFile(tmp, binaryPath, fs.constants.COPYFILE_FICLONE, cb)) // this could fail
+        await prom(cb => fs.chmod(binaryPath, 755))
       }
       await prom(cb => fs.unlink(tmp))
       await installRoutine()
