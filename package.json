@@ -9,6 +9,9 @@
   "bin": {
     "pneumon": "src/bin.js"
   },
+  "files": [
+    "src/*"
+  ],
   "keywords": [
     "update",
     "service",
