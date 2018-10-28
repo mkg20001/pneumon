@@ -78,8 +78,6 @@ const Pneumon = (options) => {
     serviceManager = ServiceManagers[Object.keys(ServiceManagers).filter(s => s.detect())[0]]
   }
 
-  Joi.validate(serviceManager, serviceManagerScheme)
-
   let service
   let wrapper
 
@@ -102,6 +100,12 @@ const Pneumon = (options) => {
       args: [wrapperScript.path]
     }
   }
+
+  service.name = name
+
+  serviceManager = new serviceManager(service)
+
+  Joi.validate(serviceManager, serviceManagerScheme)
 
   const updateRoutine = {
     check: async () => { // check for new version

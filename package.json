@@ -23,6 +23,11 @@
     "node-fetch": "^2.2.0",
     "shell-escape": "^0.2.0"
   },
+  "optionalDependencies": {
+    "node-linux": "^0.1.11",
+    "node-mac": "^0.1.8",
+    "node-windows": "^0.1.14"
+  },
   "devDependencies": {},
   "repository": {
     "type": "git",

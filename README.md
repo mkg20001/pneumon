@@ -24,7 +24,7 @@ Pneumon is a module that allows automatic updating and managment of nodeJS app d
   - `Object`:
     - `path`: Path to wrapper script
     - `type`: Can be one of `sh`, `bat`, `ps`. Usually auto-detected based on file-ending or platform
-- `Object serviceManager`: Service manager. Can be either a string of `systemd`, `windows` or an object. Default is auto-detected by platform
+- `Function serviceManager({ name, cmd, args })`: Service manager. Can be either a string of `linux`, `mac`, `windows` or an object. Default is auto-detected by platform
     - `Promise<Boolean> isInstalled(name)`: Checks whether the named service is installed
     - `Promise<Void> install(name, cmd, args)`: Installs a service that launches a command with arguments. NOTE: Will also be called sometimes to update an existing service
     - `Promise<Void> uninstall(name)`: Uninstalls a service
