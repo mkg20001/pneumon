@@ -33,7 +33,7 @@ module.exports = (getService, fakeWrapper) => class ServiceManager {
   }
 
   isInstalled () {
-
+    return false // TODO: add
   }
 
   install () {

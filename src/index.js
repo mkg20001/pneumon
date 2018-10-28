@@ -170,7 +170,11 @@ const Pneumon = (options) => {
     },
     prepare: async (tmp, newVer) => { // prepare update (move bin, rewrite wrapper)
       // we're using copyFile since rename can fail sometimes accross filesystems?!
-      await prom(cb => fs.copyFile(tmp, binaryPath + '.new', fs.constants.COPYFILE_FICLONE, cb))
+      if (wrapper) {
+        await prom(cb => fs.copyFile(tmp, binaryPath + '.new', fs.constants.COPYFILE_FICLONE, cb)) // wrapper will move $BIN.new to $BIN on launch because some os don't allow writing to the exec while it's running
+      } else {
+        await prom(cb => fs.copyFile(tmp, binaryPath, fs.constants.COPYFILE_FICLONE, cb)) // this could fail
+      }
       await prom(cb => fs.unlink(tmp))
       await installRoutine()
     },
