@@ -20,11 +20,12 @@ cp.on('exit', (code, sig) => {
 })
 `
 
-module.exports = (getService, fakeWrapper) => class ServiceManager {
+module.exports = (getService, fakeWrapper, platform) => class ServiceManager {
   constructor (opt) {
     Object.assign(this, opt)
     this.Service = getService()
     this.fakeWrapper = fakeWrapper + this.name + '.js'
+    this.platform = platform
     this.service = new this.Service({
       name: this.name,
       description: 'Pneumon App Deployment ' + this.name,
@@ -78,5 +79,9 @@ module.exports = (getService, fakeWrapper) => class ServiceManager {
 
   async isRunningAsService () {
     return true // TODO: add
+  }
+
+  detect () {
+    return process.platform === this.platform
   }
 }

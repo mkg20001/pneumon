@@ -1,6 +1,8 @@
 'use strict'
 
 const Joi = require('joi')
+const debug = require('debug')
+const log = debug('pneumon')
 
 const configScheme = { // TODO: add
   version: Joi.string().required()
@@ -8,26 +10,26 @@ const configScheme = { // TODO: add
 
 const updateScheme = Joi.object().required().keys({
   version: Joi.string().required(),
-  checksum: Joi.buffer(),
+  checksum: Joi.binary(),
   url: Joi.string().required(),
   _source: Joi.string()
 })
 
 const serviceManagerScheme = {
-  isInstalled: Joi.function().required(),
-  install: Joi.function().required(),
-  uninstall: Joi.function().required(),
-  start: Joi.function().required(),
-  stop: Joi.function().required(),
-  restart: Joi.function().required(),
-  isRunningAsService: Joi.function().required(),
-  detect: Joi.function() // "private" api
+  isInstalled: Joi.func().required(),
+  install: Joi.func().required(),
+  uninstall: Joi.func().required(),
+  start: Joi.func().required(),
+  stop: Joi.func().required(),
+  restart: Joi.func().required(),
+  isRunningAsService: Joi.func().required(),
+  detect: Joi.func() // "private" api
 }
 
 const DefaultUpdater = require('./updater')
 const ScriptTypeByPlatform = {linux: 'sh', darwin: 'sh', win32: 'bat'}
-const ScriptTypes = ['sh', 'bat', 'ps'] // TODO: add
-const ServiceManagers = {} // TODO: add
+const ScriptTypes = require('./script')
+const ServiceManagers = require('./service')
 
 const prom = (f) => new Promise((resolve, reject) => f((err, res) => err ? reject(err) : resolve(res)))
 
@@ -43,12 +45,15 @@ const Pneumon = (options) => {
   // TODO: validate
   let {version, updater, checkInterval, executorPath, binaryPath, wrapperScript, serviceManager, name} = options
 
+  log('setup pneumon for %s', name)
+
   if (typeof updater === 'string') {
     updater = DefaultUpdater(updater) // create updater from url
   }
 
   if (!checkInterval) {
     checkInterval = 1000 * 60 * 60
+    log('check for updates every %i', checkInterval)
   }
 
   if (typeof executorPath === 'undefined') {
@@ -69,6 +74,9 @@ const Pneumon = (options) => {
   }
 
   wrapperScript.manager = ScriptTypes[wrapperScript.type]
+
+  log('wrapper script config: %o', wrapperScript || 'not enabled')
+  log('runtime config: executor=%o, binary=%o', executorPath, binaryPath)
 
   if (typeof serviceManager === 'string') {
     serviceManager = ServiceManagers[serviceManager]
@@ -109,9 +117,11 @@ const Pneumon = (options) => {
 
   const updateRoutine = {
     check: async () => { // check for new version
+      log('checking for updates')
       const newVer = await updater()
       Joi.validate(newVer, updateScheme)
       if (newVer.version !== version) {
+        log('found (%o => %o)', version, newVer.version)
         return newVer
       }
     },
@@ -130,6 +140,7 @@ const Pneumon = (options) => {
         dlUrl = newVer.url
       }
 
+      log('downloading %o to %o', dlUrl, tmp)
       const res = await fetch(dlUrl)
 
       let hash
@@ -152,6 +163,8 @@ const Pneumon = (options) => {
         })
 
         dest.on('finish', () => {
+          log('finishing dl')
+
           if (hash) {
             const hashDl = hashFnc.digest()
             if (!multihashing.verify(hash, hashDl)) {
@@ -170,6 +183,7 @@ const Pneumon = (options) => {
     },
     prepare: async (tmp, newVer) => { // prepare update (move bin, rewrite wrapper)
       // we're using copyFile since rename can fail sometimes accross filesystems?!
+      log('copying binary')
       if (wrapper) {
         await prom(cb => fs.copyFile(tmp, binaryPath + '.new', fs.constants.COPYFILE_FICLONE, cb)) // wrapper will move $BIN.new to $BIN on launch because some os don't allow writing to the exec while it's running
       } else {
@@ -179,9 +193,11 @@ const Pneumon = (options) => {
       await installRoutine()
     },
     finalize: async () => { // finalize (restart service)
+      log('finalize update')
       await serviceManager.restart()
     },
     all: async () => {
+      log('update routine started')
       const newVer = await updateRoutine.check()
       if (!newVer) {
         return
@@ -193,6 +209,7 @@ const Pneumon = (options) => {
   }
 
   const installRoutine = async () => {
+    log('running install')
     if (wrapper) {
       await prom(cb => fs.writeFile(wrapperScript.path, wrapperScript.manager.generator(wrapper, binaryPath), cb))
     }

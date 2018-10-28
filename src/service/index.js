@@ -3,7 +3,8 @@
 const Wrapper = require('./wrapper')
 
 module.exports = {
-  linux: Wrapper(() => require('node-linux').Service, '/.pneumon-'),
-  mac: Wrapper(() => require('node-mac').Service, '/system/.pneumon-'),
-  windows: Wrapper(() => require('node-windows').Service, 'C:\\windows\\pnemon-')
+  systemd: require('./systemd'),
+  linux: Wrapper(() => require('node-linux').Service, '/.pneumon-', 'linux'),
+  mac: Wrapper(() => require('node-mac').Service, '/system/.pneumon-', 'darwing'),
+  windows: Wrapper(() => require('node-windows').Service, 'C:\\windows\\pnemon-', 'win32')
 }
