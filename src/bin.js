@@ -62,4 +62,4 @@ if (hash) {
 
 fs.writeFileSync(out, JSON.stringify(data, null, 2) + '\n')
 
-console.log('Written update %s (version %s) meta to %s!', file, version, out)
+console.log('Written update metadata for %s (version %s) to file %s!', file, version, out)
