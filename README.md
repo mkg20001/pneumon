@@ -1,12 +1,8 @@
 # pneumon
 
-## WIP DOESNT WORK YET
-
 Pneumon is a module that allows automatic updating and managment of nodeJS app deployments.
 
 # API
-
-**NOTE: Most of the options/events don't currently work as this is WIP**
 
 ## `Pneumon(options)`
 - `String version`: Current app version
@@ -24,7 +20,7 @@ Pneumon is a module that allows automatic updating and managment of nodeJS app d
   - `Object`:
     - `path`: Path to wrapper script
     - `type`: Can be one of `sh`, `bat`, `ps`. Usually auto-detected based on file-ending or platform
-- `Function serviceManager({ name, cmd, args })`: Service manager. Can be either a string of `linux`, `mac`, `windows` or an object. Default is auto-detected by platform
+- `Function serviceManager({ name, cmd, args })`: Service manager. Can be either a string of `systemd`, `linux`, `mac`, `windows` (NOTE: last 3 will get deperacted soon, see issue #1) or an object. Default is auto-detected by platform
     - `Promise<Boolean> isInstalled(name)`: Checks whether the named service is installed
     - `Promise<Void> install(name, cmd, args)`: Installs a service that launches a command with arguments. NOTE: Will also be called sometimes to update an existing service
     - `Promise<Void> uninstall(name)`: Uninstalls a service
@@ -42,7 +38,7 @@ Pneumon is a module that allows automatic updating and managment of nodeJS app d
 ### `Promise<Boolean> .checkForUpdates()`: Returns if updates are available
 ### `Promise<Void> .update()`: Runs update routine (Check?, Download, Replace, Restart)
 
-## Events
+## Events (NOT YET IMPLEMENTED)
 ### `checkFailed(err)`: Update check has failed
 ### `check(data, currentVersion)`: Update check has succeded
 ### `updateFound(data, currentVersion)`: Update check has found new version
@@ -80,6 +76,21 @@ main()
 To use pneumon, you need to bundle your code into a single file which you can do using [pkg](https://github.com/zeit/pkg)
 
 You could also use docker, but sometimes that's simply not an option or just too much, that's why I created this lib
+
+## GitLab Config
+
+If you want to deploy the binary from gitlab simply launch a [gitlab-artifacts-server](https://github.com/mkg20001/gitlab-artifacts-server) and add this job to the gitlab-ci yaml:
+
+```
+build:
+  script:
+   - npx pkg --out-path deploy .
+   - 'for f in deploy/*; do npx pneumon --version "$(cat package.json | jq -rc)" --hash --file "$f" --out "$f.json"; done'
+  image: node:10
+  stage: build
+  artifacts:
+    paths:
+      - deploy/
 
 # Wrapper Script
 
