@@ -91,6 +91,7 @@ build:
   artifacts:
     paths:
       - deploy/
+```
 
 # Wrapper Script
 
