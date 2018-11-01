@@ -23,8 +23,8 @@
   "dependencies": {
     "bl": "^2.1.2",
     "debug": "^4.1.0",
-    "joi": "^14.0.1",
-    "multihashing": "github:mkg20001/js-multihashing#feat/drop-webcrypto",
+    "joi": "^14.0.3",
+    "multihashing": "github:mkg20001/js-multihashing#patches",
     "node-fetch": "^2.2.0",
     "shell-escape": "^0.2.0"
   },
