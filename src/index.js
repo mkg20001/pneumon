@@ -205,7 +205,7 @@ const Pneumon = (options) => {
         await prom(cb => fs.copyFile(tmp, binaryPath, fs.constants.COPYFILE_FICLONE, cb)) // this could fail
         await prom(cb => fs.chmod(binaryPath, 755, cb))
       }
-      await prom(cb => fs.unlink(tmp))
+      await prom(cb => fs.unlink(tmp, cb))
       await installRoutine()
     },
     finalize: async () => { // finalize (restart service)
