@@ -11,6 +11,8 @@ const tpl = ({name, cmd, args}) => `
 
 start on filesystem
 exec /usr/bin/env NODE_ENV=production PNEUMON_INNER=1 ${esc([cmd].concat(args))}
+# auto-restart
+respawn
 `
 
 module.exports = ({name, cmd, args}) => {
