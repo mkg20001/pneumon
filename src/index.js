@@ -211,6 +211,7 @@ const Pneumon = (options) => {
     finalize: async () => { // finalize (restart service)
       log('finalize update')
       await serviceManager.restart(true)
+      process.kill(process.pid, 'SIGTERM') // if we're still here then simply try auto-restart as a last resort
     },
     all: async (force) => {
       log('update routine started')
