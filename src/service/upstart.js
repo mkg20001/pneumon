@@ -29,13 +29,13 @@ module.exports = ({name, cmd, args}) => {
       await prom(cb => fs.unlink(svcPath, cb))
     },
     start: async () => {
-      await exec('service', ['start', name])
+      await exec('service', [name, 'start'])
     },
     stop: async () => {
-      await exec('service', ['stop', name])
+      await exec('service', [name, 'stop'])
     },
     restart: async () => {
-      await exec('service', ['restart', name])
+      await exec('service', [name, 'restart'])
     },
     isRunningAsService: async () => Boolean(process.env.PNEUMON_INNER)
   }
