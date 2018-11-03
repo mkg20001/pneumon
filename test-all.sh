@@ -13,6 +13,7 @@ for vagrant in $(dir -w 1 | grep Vagrantfile); do
   echo
 
   ln -s $vagrant Vagrantfile
+  vagrant box update ; true
   vagrant up
 
   echo
