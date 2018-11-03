@@ -25,6 +25,7 @@ module.exports = ({name, cmd, args}) => {
       await prom(cb => fs.writeFile(svcPath, tpl({name, cmd, args}), cb))
       await exec('ln', ['-sf', svcPath, svcEnable])
       await exec('chmod', ['+x', svcEnable])
+      await exec('sleep', ['1s']) // wait a bit so it can find the service
     },
     uninstall: async () => {
       await prom(cb => fs.unlink(svcEnable, cb))
