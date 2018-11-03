@@ -39,7 +39,7 @@ module.exports = ({name, cmd, args}) => {
     restart: async (unref) => {
       await exec('initctl', ['restart', name], unref)
     },
-    isRunningAsinitctl: async () => Boolean(process.env.PNEUMON_INNER)
+    isRunningAsService: async () => Boolean(process.env.PNEUMON_INNER)
   }
 }
 
