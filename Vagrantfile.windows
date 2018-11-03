@@ -1,0 +1,11 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "gusztavvargadr/windows10"
+  config.vm.provision "shell", inline: <<-SHELL
+    choco install nodejs git
+    npm i -g http-server pkg
+    bash test/test.sh
+  SHELL
+end

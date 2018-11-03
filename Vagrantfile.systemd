@@ -1,0 +1,12 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
+  config.vm.provision "shell", inline: <<-SHELL
+    curl https://deb.nodesource.com/node_10 | bash -
+    apt-get install nodejs -y
+    npm i -g http-server pkg
+    bash test/test.sh
+  SHELL
+end
