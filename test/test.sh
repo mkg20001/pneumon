@@ -7,17 +7,17 @@ run_test() {
   TEST_DISPLAY="$2"
   # TODO: isolate set -e, get res
   echo
-  echo " -> Running '$TEST_DISPLAY'"
+  echo " > $CAT -> Running '$TEST_DISPLAY'"
   echo
   "$1"
   echo
-  echo " -* '$TEST_DISPLAY' PASSED"
+  echo " > $CAT -* '$TEST_DISPLAY' PASSED"
   echo
 }
 
 fail_test() {
   echo
-  echo " -* '$TEST_DISPLAY' FAILED"
+  echo " > $CAT -* '$TEST_DISPLAY' FAILED"
   echo
   exit 2
 }
@@ -27,7 +27,6 @@ trap fail_test ERR
 SRC=$(dirname $(dirname $(readlink -f $0)))
 TEST=$(dirname $(readlink -f $0))
 TMP="$TEST/tmp"
-APP="$TMP/run/app.js"
 export DEBUG='pneumon*'
 
 cd "$TEST"
@@ -37,7 +36,7 @@ get_ver() {
 }
 
 app_ver() {
-  cat "$TEST/test-app.js" | sed "s|#VERSION#|$1|g"
+  cat "$TEST/test-app.js" | sed "s|#VERSION#|$1|g" | sed "s|#WRAPPER#|$WRAPPER_SCRIPT|g"
 }
 
 clean() {
@@ -56,15 +55,13 @@ prepare() {
   mkdir "$TMP/run"
   mkdir "$TMP/dl"
 
-  app_ver v1 > "$TMP/run/app.js"
-  app_ver v2 > "$TMP/dl/app.js"
-  node "$SRC/src/bin.js" --hash --version v2 --file "$TMP/dl/app.js" --out "$TMP/dl/app.json"
+  build_app
   http-server -p 3778 "$TMP/dl" &
   echo $! > "/tmp/pn-ht.pid"
 }
 
 install_app() {
-  sudo -E node "$APP" "install"
+  "${APP_CMD[@]}" "install"
 
   sleep 2s
 
@@ -86,7 +83,7 @@ update_app() {
 }
 
 uninstall_app() {
-  sudo -E node "$APP" uninstall ; :
+  "${APP_CMD[@]}" uninstall ; :
 
   if get_ver; then
     echo "Still running, failed"
@@ -102,10 +99,39 @@ full_run() {
   run_test clean "Cleanup"
 }
 
+build_app() {
+  app_ver v1 > "$TMP/run/app.js"
+  app_ver v2 > "$TMP/dl/app.js"
+  node "$SRC/src/bin.js" --hash --version v2 --file "$TMP/dl/app.js" --out "$TMP/dl/app.json"
+}
+APP="$TMP/run/app.js"
+APP_CMD=(sudo -E node "$APP")
+
+# normal tests
+CAT="normal"
 full_run
 
-# TODO: add wrapper script tests
-# export WRAPPER_SCRIPT=""
-# full_run
+# wrapper script tests
+CAT="wrapper"
+WRAPPER_SCRIPT="$TMP/wrapper.sh"
+full_run
+WRAPPER_SCRIPT=
 
-# TODO: add pkg test
+build_app() {
+  app_ver v1 > "$TMP/run/app.js"
+  pkg -t node10-linux -o "$TMP/run/app" "$TMP/run/app.js"
+  app_ver v2 > "$TMP/dl/app.js"
+  pkg -t node10-linux -o "$TMP/dl/app" "$TMP/dl/app.js"
+  node "$SRC/src/bin.js" --hash --version v2 --file "$TMP/dl/app" --out "$TMP/dl/app.json"
+}
+APP="$TMP/run/app"
+APP_CMD=(sudo -E "$APP")
+
+# pkg tests
+CAT="pkg"
+full_run
+
+CAT="pkg-wrapper"
+WRAPPER_SCRIPT="$TMP/wrapper.sh"
+full_run
+WRAPPER_SCRIPT=

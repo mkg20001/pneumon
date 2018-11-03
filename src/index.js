@@ -71,7 +71,7 @@ const Pneumon = (options) => {
 
     if (typeof wrapperScript.type === 'undefined') {
       let ext = wrapperScript.path.split('.').pop()
-      wrapperScript.type = ScriptTypes.indexOf(ext) !== -1 ? ext : ScriptTypeByPlatform[process.platform]
+      wrapperScript.type = Object.keys(ScriptTypes).indexOf(ext) !== -1 ? ext : ScriptTypeByPlatform[process.platform]
     }
 
     wrapperScript.manager = ScriptTypes[wrapperScript.type]
@@ -233,7 +233,7 @@ const Pneumon = (options) => {
       await serviceManager.install(name)
     },
     uninstall: async () => {
-      if (wrapper) {
+      if (wrapper && fs.existsSync(wrapperScript.path)) {
         await prom(cb => fs.unlink(wrapperScript.path, cb))
       }
       await serviceManager.uninstall(name)

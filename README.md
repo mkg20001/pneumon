@@ -60,7 +60,6 @@ const App = Pneumon({ // most stuff is optional, this is the bare-minimum
 const main = async () => {
   if (!await app.isInstalled()) {
     await app.install() // installs service
-    await app.service.start() // starts service
     process.exit(0) // quit this instance
   }
 

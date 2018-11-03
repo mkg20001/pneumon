@@ -1,24 +1,26 @@
 'use strict'
 
 const VERSION = '#VERSION#'
+const WRAPPER = '#WRAPPER#'
 const PORT = 3779
 
 const net = require('net')
-const path = require('path')
 
 const arg = process.argv[2]
 
-let isPN = false
-const Pneumon = require(__dirname.split(path.sep).filter(name => {
-  if (isPN) return
-  isPN = name === 'pneumon'
-  return true
-}).join(path.sep))
+let Pneumon
+try {
+  Pneumon = require('..')
+} catch (e) {
+  Pneumon = require('../../..')
+}
+
 const app = Pneumon({
   version: VERSION,
   updater: 'http://localhost:3778/app.json',
   name: 'pn-test-app',
-  checkInterval: 5000
+  checkInterval: 5000,
+  wrapperScript: WRAPPER || ''
 })
 
 async function main () {
