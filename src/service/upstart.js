@@ -21,7 +21,7 @@ module.exports = ({name, cmd, args}) => {
 
   const isrunning = async () => {
     const p = await exec('initctl', ['status', name])
-    return !String(p.stdout).indexOf('stop/waiting')
+    return String(p.stdout).indexOf('stop/waiting') === -1
   }
 
   return {
