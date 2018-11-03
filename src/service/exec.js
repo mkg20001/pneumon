@@ -14,7 +14,7 @@ module.exports = (cmd, args, unref) => new Promise((resolve, reject) => {
 
   p.once('exit', (code, sig) => {
     if (code || sig) {
-      return reject(new Error('Code/Sig ' + (code || sig) + ' on ' + cmd.concat(args).map(JSON.stringify).join(' ')))
+      return reject(new Error('Code/Sig ' + (code || sig) + ' on ' + [cmd].concat(args).map(JSON.stringify).join(' ')))
     }
 
     return resolve(p)
