@@ -11,7 +11,14 @@ for vagrant in $(dir -w 1 | grep Vagrantfile); do
   echo
   echo " ===> ${vagrant/Vagrantfile./} <==="
   echo
-  ln -sf $vagrant Vagrantfile
+
+  ln -s $vagrant Vagrantfile
   vagrant up
+
+  echo
+  echo " ===> SUCCESS ${vagrant/Vagrantfile./} <==="
+  echo
+
+  vagrant destroy -f
   rm Vagrantfile
 done
