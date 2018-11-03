@@ -44,8 +44,8 @@ module.exports = ({name, cmd, args}) => {
     stop: async () => {
       await exec('systemctl', ['stop', name])
     },
-    restart: async () => {
-      await exec('systemctl', ['restart', name])
+    restart: async (unref) => {
+      await exec('systemctl', ['restart', name], unref)
     },
     isRunningAsService: async () => Boolean(process.env.PNEUMON_INNER)
   }

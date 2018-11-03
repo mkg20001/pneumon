@@ -34,8 +34,8 @@ module.exports = ({name, cmd, args}) => {
     stop: async () => {
       await exec('initctl', ['stop', name])
     },
-    restart: async () => {
-      await exec('initctl', ['restart', name])
+    restart: async (unref) => {
+      await exec('initctl', ['restart', name], unref)
     },
     isRunningAsinitctl: async () => Boolean(process.env.PNEUMON_INNER)
   }

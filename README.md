@@ -23,10 +23,10 @@ Pneumon is a module that allows automatic updating and managment of nodeJS app d
 - `Function serviceManager({ name, cmd, args })`: Service manager. Can be either a string of `systemd`, `linux`, `mac`, `windows` (NOTE: last 3 will get deperacted soon, see issue #1) or an object. Default is auto-detected by platform
     - `Promise<Boolean> isInstalled(name)`: Checks whether the named service is installed
     - `Promise<Void> install(name, cmd, args)`: Installs a service that launches a command with arguments. NOTE: Will also be called sometimes to update an existing service
-    - `Promise<Void> uninstall(name)`: Uninstalls a service
-    - `Promise<Void> start(name)`: Starts a service
-    - `Promise<Void> stop(name)`: Stops a service
-    - `Promise<Void> restart(name)`: Restarts a service
+    - `Promise<Void> uninstall()`: Uninstalls the service
+    - `Promise<Void> start()`: Starts the service
+    - `Promise<Void> stop()`: Stops the service
+    - `Promise<Void> restart(bg)`: Restarts the service, `bg` option forks the command to the background
     - `Promise<Boolean> isRunningAsService()`: Tries to detect whether the app is running in a service
 - `String name`: Name used for app service
 
