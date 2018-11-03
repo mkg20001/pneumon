@@ -72,7 +72,7 @@ install_app() {
 
 update_app() {
   echo "Wait for auto-update to trigger..."
-  sleep 5s
+  sleep 10s
 
   echo "Check..."
   if [ "$(get_ver)" != "v2" ]; then
