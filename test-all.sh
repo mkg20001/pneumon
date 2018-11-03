@@ -3,11 +3,15 @@
 set -e
 
 if [ -e Vagrantfile ]; then
-  yes | vagrant destroy
+  vagrant destroy -f
   rm Vagrantfile
 fi
 
 for vagrant in $(dir -w 1 | grep Vagrantfile); do
-  ln -s $vagrant Vagrantfile
+  echo
+  echo " ===> ${vagrant/Vagrantfile./} <==="
+  echo
+  ln -sf $vagrant Vagrantfile
   vagrant up
+  rm Vagrantfile
 done
