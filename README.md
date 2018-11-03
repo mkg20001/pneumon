@@ -16,6 +16,7 @@ Pneumon is a module that allows automatic updating and managment of nodeJS app d
 - `String executorPath`: Binary to execute the executable with. This usually is the nodeJS runtime. Set this to `false` to make the binary get directly executed, as it is required for pkg. (Note: If `process.pkg` is set then this is automatically getting set to `false`)
 - `String binaryPath`: The path to the binary. This is `process.argv[1]` by default, unless `executorPath` is set to `false` then it's `process.argv[0]`
 - `wrapperScript`: Wrapper script that needs to be replaced. Optional.
+  - `Boolean`: If `true` then a wrapper script will be created at `binaryPath` + extension for platform
   - `String`: Path to wrapper script
   - `Object`:
     - `path`: Path to wrapper script

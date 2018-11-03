@@ -65,6 +65,10 @@ const Pneumon = (options) => {
   }
 
   if (wrapperScript) {
+    if (typeof wrapperScript === 'boolean') {
+      wrapperScript = {path: binaryPath + '.' + ScriptTypeByPlatform[process.platform]}
+    }
+
     if (typeof wrapperScript === 'string') {
       wrapperScript = {path: wrapperScript}
     }
