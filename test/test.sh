@@ -5,7 +5,6 @@ set -eE
 run_test() {
   TEST_NAME="$1"
   TEST_DISPLAY="$2"
-  # TODO: isolate set -e, get res
   echo
   echo " > $CAT -> Running '$TEST_DISPLAY'"
   echo
@@ -119,9 +118,9 @@ WRAPPER_SCRIPT=
 
 build_app() {
   app_ver v1 > "$TMP/run/app.js"
-  pkg -t node10-linux -o "$TMP/run/app" "$TMP/run/app.js"
+  pkg -t host -o "$TMP/run/app" "$TMP/run/app.js"
   app_ver v2 > "$TMP/dl/app.js"
-  pkg -t node10-linux -o "$TMP/dl/app" "$TMP/dl/app.js"
+  pkg -t host -o "$TMP/dl/app" "$TMP/dl/app.js"
   node "$SRC/src/bin.js" --hash --version v2 --file "$TMP/dl/app" --out "$TMP/dl/app.json"
 }
 APP="$TMP/run/app"
