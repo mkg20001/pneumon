@@ -40,7 +40,7 @@ module.exports = ({name, cmd, args}) => {
       await exec('systemctl', ['start', name])
     },
     stop: async () => {
-      await exec('systemctl', ['start', name])
+      await exec('systemctl', ['stop', name])
     },
     restart: async () => {
       await exec('systemctl', ['restart', name])

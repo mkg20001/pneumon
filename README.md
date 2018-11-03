@@ -31,8 +31,10 @@ Pneumon is a module that allows automatic updating and managment of nodeJS app d
 - `String name`: Name used for app service
 
 ### `Promise<Boolean> .isInstalled()`: Returns whether the app is installed as a service
-### `Promise<Void> .install()`: Installs app
-### `Promise<Void> .uninstall()`: Uninstalls app
+### `Promise<Void> .install()`: Installs app and starts service
+### `Promise<Void> .uninstall()`: Uninstalls app and stops service
+### `Promise<Void> routines.install()`: Installs app
+### `Promise<Void> routines.uninstall()`: Uninstalls app
 ### `.service`: See serviceManager
 ### `Promise<Boolean> .isRunningAsService()`: Check whether we are in a service or not
 ### `Promise<Boolean> .checkForUpdates()`: Returns if updates are available

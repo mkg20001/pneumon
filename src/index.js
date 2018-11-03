@@ -206,7 +206,7 @@ const Pneumon = (options) => {
         await prom(cb => fs.chmod(binaryPath, 755, cb))
       }
       await prom(cb => fs.unlink(tmp, cb))
-      await installRoutine()
+      await routines.install()
     },
     finalize: async () => { // finalize (restart service)
       log('finalize update')
@@ -224,22 +224,31 @@ const Pneumon = (options) => {
     }
   }
 
-  const installRoutine = async () => {
-    log('running install')
-    if (wrapper) {
-      await prom(cb => fs.writeFile(wrapperScript.path, wrapperScript.manager.generator(wrapper, binaryPath), cb))
-    }
-    await serviceManager.install(name)
-  }
-
-  return {
-    isInstalled: () => serviceManager.isInstalled(name),
-    install: installRoutine,
+  const routines = {
+    install: async () => {
+      log('running install')
+      if (wrapper) {
+        await prom(cb => fs.writeFile(wrapperScript.path, wrapperScript.manager.generator(wrapper, binaryPath), cb))
+      }
+      await serviceManager.install(name)
+    },
     uninstall: async () => {
       if (wrapper) {
         await prom(cb => fs.unlink(wrapperScript.path, cb))
       }
       await serviceManager.uninstall(name)
+    }
+  }
+
+  return {
+    isInstalled: () => serviceManager.isInstalled(name),
+    install: async () => {
+      await routines.install()
+      await serviceManager.restart()
+    },
+    uninstall: async () => {
+      await serviceManager.stop()
+      await routines.uninstall()
     },
     service: serviceManager,
     isRunningAsService: () => serviceManager.isRunningAsService(),
