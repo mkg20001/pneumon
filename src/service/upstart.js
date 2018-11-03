@@ -19,7 +19,7 @@ module.exports = ({name, cmd, args}) => {
   const svcPath = '/etc/init/' + name + '.conf'
   const svcEnable = '/etc/init.d/' + name
 
-  const isrunning = async (name) => {
+  const isrunning = async () => {
     const p = await exec('initctl', ['status', name])
     return !String(p.stdout).indexOf('stop/waiting')
   }
