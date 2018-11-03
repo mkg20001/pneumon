@@ -19,8 +19,14 @@ module.exports = ({name, cmd, args}) => {
   const svcPath = '/etc/init/' + name + '.conf'
   const svcEnable = '/etc/init.d/' + name
 
+  const isrunning = async (name) => {
+    const p = await exec('initctl', ['status', name])
+    return !String(p.stdout).indexOf('stop/waiting')
+  }
+
   return {
     isInstalled: async () => fs.existsSync(svcPath),
+    running: isrunning,
     install: async () => {
       await prom(cb => fs.writeFile(svcPath, tpl({name, cmd, args}), cb))
       await exec('ln', ['-sf', svcPath, svcEnable])
@@ -32,13 +38,21 @@ module.exports = ({name, cmd, args}) => {
       await prom(cb => fs.unlink(svcPath, cb))
     },
     start: async () => {
-      await exec('initctl', ['start', name])
+      if (!await isrunning()) {
+        await exec('initctl', ['start', name])
+      }
     },
     stop: async () => {
-      await exec('initctl', ['stop', name])
+      if (await isrunning()) {
+        await exec('initctl', ['stop', name])
+      }
     },
     restart: async (unref) => {
-      await exec('initctl', ['restart', name], unref)
+      if (await isrunning()) {
+        await exec('initctl', ['restart', name], unref)
+      } else {
+        await exec('initctl', ['start', name], unref)
+      }
     },
     isRunningAsService: async () => Boolean(process.env.PNEUMON_INNER)
   }
