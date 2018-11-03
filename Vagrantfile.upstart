@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
     export HOME=/root
 
     curl https://deb.nodesource.com/setup_10.x | bash -
-    apt-get install nodejs -y
+    apt-get install nodejs git -y
     npm i -g http-server pkg
     cd /vagrant
     npm i
