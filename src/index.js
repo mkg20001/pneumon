@@ -210,7 +210,7 @@ const Pneumon = (options) => {
     },
     finalize: async () => { // finalize (restart service)
       log('finalize update')
-      await serviceManager.restart()
+      await serviceManager.restart(true)
     },
     all: async (force) => {
       log('update routine started')
