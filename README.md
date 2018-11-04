@@ -75,7 +75,7 @@ main()
 
 # Helpful notes
 
-To use pneumon, you need to bundle your code into a single file which you can do using [pkg](https://github.com/zeit/pkg)
+To use pneumon, you need to bundle your code into a single file which you can do using [pkg](https://github.com/zeit/pkg) or [parcel](https://github.com/parcel-bundler/parcel)
 
 You could also use docker, but sometimes that's simply not an option or just too much, that's why I created this lib
 
@@ -86,7 +86,11 @@ If you want to deploy the binary from gitlab simply launch a [gitlab-artifacts-s
 ```
 build:
   script:
+# for pkg
    - npx pkg --out-path deploy .
+# OR for parcel (unrecommended as it doesn't always work)
+#   - npx parcel --target node --bundle-node-modules
+# writes metadata
    - 'for f in deploy/*; do npx pneumon --version "$(cat package.json | jq -rc)" --hash --file "$f" --out "$f.json"; done'
   image: node:10
   stage: build
