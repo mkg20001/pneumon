@@ -229,6 +229,23 @@ const Pneumon = (options) => {
     }
   }
 
+  let updating
+  const updateRoutineSafe = async (...a) => {
+    if (updating) {
+      await updating
+    } else {
+      updating = updateRoutine.all(...a)
+      try {
+        await updating
+      } catch (e) {
+        log(e)
+      }
+      let up = updating
+      updating = null
+      return up
+    }
+  }
+
   const routines = {
     install: async () => {
       log('running install')
@@ -260,8 +277,8 @@ const Pneumon = (options) => {
     checkForUpdates: async () => {
       return Boolean(await updateRoutine.check())
     },
-    update: (...a) => updateRoutine.all(...a),
-    interval: setInterval(() => updateRoutine.all(), checkInterval)
+    update: (...a) => updateRoutineSafe(...a),
+    interval: setInterval(() => updateRoutineSafe(), checkInterval)
   }
 }
 
