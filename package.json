@@ -23,9 +23,9 @@
   "dependencies": {
     "bl": "^2.1.2",
     "debug": "^4.1.0",
-    "joi": "^14.0.3",
+    "joi": "^14.0.4",
     "multihashing": "github:mkg20001/js-multihashing#patches",
-    "node-fetch": "^2.2.0",
+    "node-fetch": "^2.2.1",
     "shell-escape": "^0.2.0"
   },
   "optionalDependencies": {
