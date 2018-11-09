@@ -283,3 +283,9 @@ const Pneumon = (options) => {
 }
 
 module.exports = Pneumon
+
+const PKG_EXEC = {win32: 'win.exe', darwin: 'macos', linux: 'linux'}
+
+module.exports.guessPkg = (name) => {
+  return name + '-' + PKG_EXEC[process.platform]
+}
