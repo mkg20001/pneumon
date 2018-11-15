@@ -2,6 +2,8 @@
 
 set -eE
 
+R=1
+
 run_test() {
   TEST_NAME="$1"
   TEST_DISPLAY="$2"
@@ -15,13 +17,21 @@ run_test() {
 }
 
 fail_test() {
-  echo
-  echo " > $CAT -* '$TEST_DISPLAY' FAILED"
-  echo
-  exit 2
+  if [ -e "/tmp/pn-ht.pid" ]; then
+    kill "$(cat /tmp/pn-ht.pid)" || echo "Couldn't kill"
+    rm "/tmp/pn-ht.pid"
+  fi
+
+  if [ ! -z "$R" ]; then
+    echo
+    echo " > $CAT -* '$TEST_DISPLAY' FAILED"
+    echo
+    exit 2
+  fi
 }
 
 trap fail_test ERR
+trap fail_test EXIT
 
 SRC=$(dirname $(dirname $(readlink -f $0)))
 TEST=$(dirname $(readlink -f $0))
@@ -134,3 +144,5 @@ CAT="pkg-wrapper"
 WRAPPER_SCRIPT="$TMP/wrapper.sh"
 full_run
 WRAPPER_SCRIPT=
+
+R=

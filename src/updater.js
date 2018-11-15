@@ -4,10 +4,10 @@ const fetch = require('node-fetch')
 const Joi = require('joi')
 const scheme = Joi.object().required().keys({
   version: Joi.string().required(),
-  checksum: Joi.string().regex(/^[a-z0-9]+$/mi),
+  checksum: Joi.string().hex(),
   url: Joi.string().required()
 })
-const path = require('path')
+const path = require('path').posix
 
 module.exports = (url) => async () => {
   let res = await fetch(url)
