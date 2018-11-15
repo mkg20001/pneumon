@@ -1,4 +1,5 @@
 test:
   script:
     - npm i
+    - ln -sf /cache $HOME/.vagrant.d
     - bash test-all.sh
