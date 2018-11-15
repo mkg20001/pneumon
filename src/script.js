@@ -14,6 +14,18 @@ if [ -e ${esc([binaryPath + '.new'])} ]; then
   mv ${esc([binaryPath + '.new', binaryPath])}
 fi
 exec ${esc([cmd].concat(args))}`
+  },
+  bat: {
+    executor: 'C:\\windows\\system32\\cmd.exe',
+    generator: ({cmd, args}, binaryPath) => `
+@echo off
+
+if exist ${esc([binaryPath + '.new'])} (
+    move /Y ${esc([binaryPath + '.new', binaryPath])}
+)
+
+${esc([cmd].concat(args))}
+`.replace(/\n/g, '\r\n')
   }
-  // TODO: add bat and ps
+  // TODO: add ps
 }

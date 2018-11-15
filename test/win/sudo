@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ "$1" == "-E" ]; then
+  shift # this is already kept anyways
+fi
+
+exec "$@"
