@@ -150,7 +150,7 @@ const Pneumon = (options) => {
           throw new Error('Manifest provided relative URL but no _source parameter!')
         }
         const parsed = new URL(newVer._source)
-        parsed.pathname = path.resolve(parsed.pathname, newVer.url)
+        parsed.pathname = path.posix.resolve(parsed.pathname, newVer.url)
         dlUrl = parsed.toString()
       } else {
         dlUrl = newVer.url
