@@ -23,18 +23,17 @@
   "dependencies": {
     "bl": "^2.1.2",
     "debug": "^4.1.0",
-    "joi": "^14.0.4",
+    "joi": "^14.0.6",
     "mkdirp": "^0.5.1",
     "multihashing": "github:mkg20001/js-multihashing#patches",
-    "node-fetch": "^2.2.1",
+    "node-fetch": "^2.3.0",
     "rimraf": "^2.6.2",
     "shell-escape": "^0.2.0",
     "xml": "^1.0.1"
   },
   "optionalDependencies": {
     "node-linux": "^0.1.11",
-    "node-mac": "^0.1.8",
-    "node-windows": "^0.1.14"
+    "node-mac": "^0.1.8"
   },
   "devDependencies": {},
   "repository": {
