@@ -4,7 +4,7 @@
   "description": "Pneumon is a module that allows automatic updating and managment of nodeJS app deployments",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "bash test/test.sh"
   },
   "bin": {
     "pneumon": "src/bin.js"
