@@ -1,4 +1,4 @@
 test:
   script:
     - npm i
-    - npm run test
+    - bash test-all.sh
