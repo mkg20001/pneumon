@@ -1,7 +1,6 @@
 'use strict'
 
 const fs = require('fs')
-const os = require('os')
 const path = require('path')
 const prom = (f) => new Promise((resolve, reject) => f((err, res) => err ? reject(err) : resolve(res)))
 const exec = require('./exec')
