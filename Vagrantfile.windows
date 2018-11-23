@@ -3,7 +3,8 @@
 
 Vagrant.configure("2") do |config|
   # config.vm.box = "gusztavvargadr/windows10"
-  config.vm.box = "gusztavvargadr/w10e"
+  # config.vm.box = "gusztavvargadr/w10e"
+  config.vm.box = "gusztavvargadr/w16s"
   config.vm.box_version = "1811.0.0"
   config.vm.provision "shell", privileged: true, binary: true, inline: <<-SHELL
     choco feature enable -n allowGlobalConfirmation
