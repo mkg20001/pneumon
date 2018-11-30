@@ -19,7 +19,13 @@ run_test() {
 fail_test() {
   if [ -e "/tmp/pn-ht.pid" ]; then
     kill "$(cat /tmp/pn-ht.pid)" || echo "Couldn't kill"
+    node "$TEST/test-app.js" "kill" || true # we have to 'cause bugs
     rm "/tmp/pn-ht.pid"
+  fi
+
+  if [ -e "/tmp/pn-tail.pid" ]; then
+    kill "$(cat /tmp/pn-tail.pid)" || echo "Couldn't kill"
+    rm "/tmp/pn-tail.pid"
   fi
 
   if [ ! -z "$R" ]; then
@@ -36,7 +42,8 @@ trap fail_test EXIT
 SRC=$(dirname $(dirname $(readlink -f $0)))
 TEST=$(dirname $(readlink -f $0))
 TMP="$TEST/tmp"
-export DEBUG='pneumon*'
+APPTMP=$(node "$TEST/test-app.js" "tmp")
+EXE=$((which taskkill > /dev/null && echo ".exe") || echo "")
 
 cd "$TEST"
 
@@ -67,6 +74,9 @@ prepare() {
   build_app
   http-server -p 3778 "$TMP/dl" &
   echo $! > "/tmp/pn-ht.pid"
+
+  touch "$APPTMP/log"
+  tail -f -n 0 "$APPTMP/log" | sed "s|^|[SERVICE]: |g" & echo $! > /tmp/pn-tail.pid
 }
 
 install_app() {
@@ -82,13 +92,21 @@ install_app() {
 
 update_app() {
   echo "Wait for auto-update to trigger..."
-  sleep 10s
 
-  echo "Check..."
-  if [ "$(get_ver)" != "v2" ]; then
-    echo "Wrong version"
-    exit 2
-  fi
+  i=0
+
+  while true; do
+    echo -n "Check... "
+    if [ "$(get_ver)" != "v2" ]; then
+      echo "Wrong version"
+      i=$((i+1))
+      [ "$i" == "10" ] && exit 2
+      sleep 10s
+    else
+      echo "ok"
+      return 0
+    fi
+  done
 }
 
 uninstall_app() {
@@ -131,9 +149,9 @@ build_app() {
   pkg -t host -o "$TMP/run/app" "$TMP/run/app.js"
   app_ver v2 > "$TMP/dl/app.js"
   pkg -t host -o "$TMP/dl/app" "$TMP/dl/app.js"
-  node "$SRC/src/bin.js" --hash --version v2 --file "$TMP/dl/app" --out "$TMP/dl/app.json"
+  node "$SRC/src/bin.js" --hash --version v2 --file "$TMP/dl/app$EXE" --out "$TMP/dl/app.json"
 }
-APP="$TMP/run/app"
+APP="$TMP/run/app$EXE"
 APP_CMD=(sudo -E "$APP")
 
 # pkg tests
